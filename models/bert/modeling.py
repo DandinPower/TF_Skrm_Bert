@@ -13,12 +13,13 @@ def _count_skrm_grad(op, grad):
 class BERTModel(tf.keras.Model):
     def __init__(self, config, parameters,skrms):
         super(BERTModel, self).__init__()
+        self.skrms = skrms
         self.parameters = parameters
-        self.encoder = BERTEncoder(config,parameters)
-        self.block1 = EncoderBlock(config,parameters,0,True)
-        self.block2 = EncoderBlock(config,parameters,1,True)
+        self.encoder = BERTEncoder(config,parameters,skrms)
+        self.block1 = EncoderBlock(config,parameters,0,skrms,True)
+        self.block2 = EncoderBlock(config,parameters,1,skrms,True)
         self.hidden = tf.keras.Sequential()
-        tempLinearLayer = LinearLayer(config.numHiddens, config.numHiddens)
+        tempLinearLayer = LinearLayer(config.numHiddens, config.numHiddens,skrms)
         tempLinearLayer.set_weights([parameters["hidden.0.weight"],parameters["hidden.0.bias"]])
         self.hidden.add(tempLinearLayer)
         self.hidden.add(tf.keras.layers.Activation('tanh'))
@@ -26,10 +27,10 @@ class BERTModel(tf.keras.Model):
     def call(self, inputs):
         (tokens, segments, valid_lens) = inputs
         embeddingX = self.encoder((tokens,segments))
-        X = self.block1((embeddingX, valid_lens))
-        X = self.block2((X, valid_lens))
-        X = self.hidden(X[:, 0, :])
-        return X
+        X1 = self.block1((embeddingX, valid_lens))
+        X2 = self.block2((X1, valid_lens))
+        X3 = self.hidden(X2[:, 0, :])
+        return X3
 
     def LoadParameters(self):
         self.encoder.LoadParameters()
@@ -43,7 +44,7 @@ class BERTClassifier(tf.keras.Model):
         self.skrms = skrms
         self.parameters = parameters
         self.bert = BERTModel(config, self.parameters,skrms)
-        self.classifier = LinearLayer(config.numHiddens, 2)
+        self.classifier = LinearLayer(config.numHiddens, 2,skrms)
 
     def call(self, tokens):
         tempSegments = tokens * 0
@@ -52,7 +53,6 @@ class BERTClassifier(tf.keras.Model):
         output1 = self.bert(inputs)
         output2 = self.classifier(output1)
         result = tf.nn.softmax(output2)
-        self.skrms.Count(output1,output2)
         self.skrms.Count(output2,result)
         return result
 

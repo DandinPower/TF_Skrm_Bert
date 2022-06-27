@@ -5,9 +5,10 @@ import time
 from ..train.timer import GetTimeByDict
 
 class DotProductAttention(tf.keras.Model):
-    def __init__(self, dropout,config):
+    def __init__(self, dropout,config,skrms):
         super(DotProductAttention, self).__init__()
         self.config = config
+        self.skrms = skrms
         self.dropout = tf.keras.layers.Dropout(dropout)
         self.first = self.config.batchSize * self.config.numHeads
         self.second = self.config.maxLen
@@ -54,17 +55,18 @@ class DotProductAttention(tf.keras.Model):
 
 
 class MultiHeadAttention(tf.keras.Model):
-    def __init__(self,config,parameters,index,bias=False):
+    def __init__(self,config,parameters,index,skrms,bias=False):
         super(MultiHeadAttention, self).__init__()
         self.num_heads = config.numHeads
+        self.skrms = skrms
         self.config = config 
         self.parameters = parameters 
         self.index = index 
-        self.attention = DotProductAttention(config.dropout,config)
-        self.W_q = LinearLayer(config.numHiddens, config.numHiddens)
-        self.W_k = LinearLayer(config.numHiddens, config.numHiddens)
-        self.W_v = LinearLayer(config.numHiddens, config.numHiddens)
-        self.W_o = LinearLayer(config.numHiddens, config.numHiddens)
+        self.attention = DotProductAttention(config.dropout,config,skrms)
+        self.W_q = LinearLayer(config.numHiddens, config.numHiddens,skrms)
+        self.W_k = LinearLayer(config.numHiddens, config.numHiddens,skrms)
+        self.W_v = LinearLayer(config.numHiddens, config.numHiddens,skrms)
+        self.W_o = LinearLayer(config.numHiddens, config.numHiddens,skrms)
 
     def call(self, inputs):
         (queries, keys, values, valid_lens) = inputs
