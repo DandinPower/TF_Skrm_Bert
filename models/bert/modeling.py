@@ -11,7 +11,7 @@ def _count_skrm_grad(op, grad):
   return [grad] 
 
 class BERTModel(tf.keras.Model):
-    def __init__(self, config, parameters):
+    def __init__(self, config, parameters,skrms):
         super(BERTModel, self).__init__()
         self.parameters = parameters
         self.encoder = BERTEncoder(config,parameters)
