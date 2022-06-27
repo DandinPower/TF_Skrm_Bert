@@ -51,7 +51,7 @@ class BERTClassifier(tf.keras.Model):
         inputs = (tokens,tempSegments,tempValid)
         output1 = self.bert(inputs)
         output2 = self.classifier(output1)
-        result = tf.nn.softmax(output)
+        result = tf.nn.softmax(output2)
         self.skrms.Count(output1,output2)
         self.skrms.Count(output2,result)
         return result
