@@ -1,12 +1,10 @@
 import tensorflow as tf
 from tensorflow.python.framework import ops
+from .skrm import SKRM
 
 class LinearLayer(tf.keras.layers.Layer):
     def __init__(self, input_dim,output_dim):
         super().__init__()
-        self.kernel = tf.load_op_library('./count_skrm.so')
-        self.tensorShape = tf.zeros([8],tf.int64)
-        self.skrms = tf.zeros([8],tf.int64)
         self.w = self.add_variable(name='w',
             shape=[input_dim, output_dim], initializer=tf.zeros_initializer())
         self.b = self.add_variable(name='b',
@@ -15,9 +13,6 @@ class LinearLayer(tf.keras.layers.Layer):
     def call(self, inputs):
         y_pred = tf.matmul(inputs, self.w) + self.b
         return y_pred
-
-    def getSkrms(self):
-        return self.skrms
 
 class AddNorm(tf.keras.Model):
     def __init__(self, dropout):

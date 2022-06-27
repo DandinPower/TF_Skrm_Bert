@@ -1,4 +1,5 @@
 from models.bert.configs import Config
+from models.bert.skrm import SKRM
 from models.bert.modeling import BERTModel,BERTClassifier
 from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDataset,GetTestDataset
 from models.preprocess.load import load_variable,Parameters,LoadModel,SaveModel,WriteTfLite,WriteInt8TFLite
@@ -87,12 +88,14 @@ def MultiTest():
 #訓練一個新的模型並儲存
 def TrainAndSave():
     config = Config()
+    skrms = SKRM()
     parameters = load_variable(PARAMETER_PATH)
     parameters = Parameters(parameters)
-    model = BERTClassifier(config, parameters)
+    model = BERTClassifier(config, parameters,skrms)
     model.LoadParameters()
     dataset = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     model = Train(model,dataset, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+    print(skrms.GetCount())
     testDataset = GetTestDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     Inference(model,testDataset)
     SaveModel(model, MODEL_SAVE_PATH)

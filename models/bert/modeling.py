@@ -37,20 +37,23 @@ class BERTModel(tf.keras.Model):
         self.block2.LoadParameters()
 
 class BERTClassifier(tf.keras.Model):
-    def __init__(self, config, parameters):
+    def __init__(self, config, parameters, skrms):
         super(BERTClassifier, self).__init__()
         self.config = config 
+        self.skrms = skrms
         self.parameters = parameters
-        self.bert = BERTModel(config, self.parameters)
+        self.bert = BERTModel(config, self.parameters,skrms)
         self.classifier = LinearLayer(config.numHiddens, 2)
 
     def call(self, tokens):
         tempSegments = tokens * 0
         tempValid = self.GetValidLen(tokens)
         inputs = (tokens,tempSegments,tempValid)
-        output = self.bert(inputs)
-        output = self.classifier(output)
+        output1 = self.bert(inputs)
+        output2 = self.classifier(output1)
         result = tf.nn.softmax(output)
+        self.skrms.Count(output1,output2)
+        self.skrms.Count(output2,result)
         return result
 
     def GetValidLen(self,inputs):
