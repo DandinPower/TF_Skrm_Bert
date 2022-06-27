@@ -85,6 +85,18 @@ def MultiTest():
     model = MultiTrain(config, parameters, devices, dataset_one, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
     Inference(model,dataset_one)
 
+#SkrmTest
+def SkrmTest():
+    config = Config()
+    skrms = SKRM()
+    parameters = load_variable(PARAMETER_PATH)
+    parameters = Parameters(parameters)
+    model = BERTClassifier(config, parameters,skrms)
+    model.LoadParameters()
+    dataset = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
+    model = Train(model,dataset, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+    print(skrms.GetCount())
+
 #訓練一個新的模型並儲存
 def TrainAndSave():
     config = Config()
@@ -95,7 +107,6 @@ def TrainAndSave():
     model.LoadParameters()
     dataset = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     model = Train(model,dataset, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
-    print(skrms.GetCount())
     testDataset = GetTestDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     Inference(model,testDataset)
     SaveModel(model, MODEL_SAVE_PATH)
@@ -113,8 +124,9 @@ def QatTest():
     QuantizationAwareTraining(model, dataset)
 
 if __name__ == "__main__":
+    SkrmTest()
     #MultiTest()
-    TrainAndSave()
+    #TrainAndSave()
     #OnlyInference()
     #DataFlowTest()
     #SingleTest()
