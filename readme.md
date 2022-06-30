@@ -51,3 +51,5 @@
         ```bash
         unzip reviews_medium.zip
         ```
+
+6. mac到此一遊
