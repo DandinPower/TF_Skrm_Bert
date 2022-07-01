@@ -13,11 +13,9 @@ class LinearLayer(tf.keras.layers.Layer):
 
     def call(self, inputs):
         matmul = tf.matmul(inputs, self.w)
-        print(inputs)
-        #print(matmul)
-        #self.skrms.Count(inputs, matmul)
         bias = matmul + self.b
         #self.skrms.Count(matmul, bias)
+        self.skrms.Count(inputs, matmul)
         return bias
 
 class AddNorm(tf.keras.Model):
