@@ -30,6 +30,7 @@ class BERTModel(tf.keras.Model):
         X1 = self.block1((embeddingX, valid_lens))
         X2 = self.block2((X1, valid_lens))
         X3 = self.hidden(X2[:, 0, :])
+        self.skrms.Count(X1,X2)
         return X3
 
     def LoadParameters(self):
