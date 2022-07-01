@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from .skrm import SKRM
+import numpy as np
 
 class LinearLayer(tf.keras.layers.Layer):
     def __init__(self, input_dim,output_dim,skrms):
@@ -15,7 +16,7 @@ class LinearLayer(tf.keras.layers.Layer):
         matmul = tf.matmul(inputs, self.w)
         bias = matmul + self.b
         #self.skrms.Count(matmul, bias)
-        self.skrms.Count(inputs, matmul)
+        self.skrms.Count(inputs, tf.convert_to_tensor(matmul, dtype=tf.float32))
         return bias
 
 class AddNorm(tf.keras.Model):
