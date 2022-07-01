@@ -28,7 +28,11 @@ class AddNorm(tf.keras.Model):
 
     def call(self, inputs):
         (X,Y) = inputs
-        return self.ln(self.dropout(Y) + X)
+        add = self.dropout(Y) + X 
+        output = self.ln(add)
+        self.skrms.Count(Y, add)
+        self.skrms.Count(add, output)
+        return output
 
 class PositionWiseFFN(tf.keras.Model):
     def __init__(self, config, parameters,index,skrms):
