@@ -12,8 +12,11 @@ class LinearLayer(tf.keras.layers.Layer):
             shape=[output_dim], initializer=tf.zeros_initializer())
 
     def call(self, inputs):
-        y_pred = tf.matmul(inputs, self.w) + self.b
-        return y_pred
+        matmul = tf.matmul(inputs, self.w)
+        self.skrms.Count(inputs, matmul)
+        bias = matmul + self.b
+        self.skrms.Count(matmul, bias)
+        return bias
 
 class AddNorm(tf.keras.Model):
     def __init__(self, dropout,skrms):
