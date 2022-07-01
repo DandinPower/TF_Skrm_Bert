@@ -3,6 +3,7 @@ from tensorflow.python.framework import ops
 from .skrm import SKRM
 import numpy as np
 
+#skrm無法套用在layer內部
 class LinearLayer(tf.keras.layers.Layer):
     def __init__(self, input_dim,output_dim,skrms):
         super().__init__()

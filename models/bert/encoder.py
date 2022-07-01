@@ -24,10 +24,12 @@ class BERTEncoder(tf.keras.Model):
 
     def call(self, inputs):
         (tokens,segments) = inputs
-        X = self.token_embedding(tokens)
-        X = X + self.segment_embedding(segments)
-        X = self.pos_embedding(X)
-        return X
+        output1 = self.token_embedding(tokens)
+        output2 = output1 + self.segment_embedding(segments)
+        output3 = self.pos_embedding(output2)
+        self.skrms.Count(output1, output2)
+        self.skrms.Count(output2, output3)
+        return output3
 
     def LoadParameters(self):
         self.pos_embedding.set_weights(self.parameters["encoder.pos_embedding"])
