@@ -30,7 +30,9 @@ class BERTModel(tf.keras.Model):
         X1 = self.block1((embeddingX, valid_lens))
         X2 = self.block2((X1, valid_lens))
         X3 = self.hidden(X2[:, 0, :])
-        self.skrms.Count(X1,X2)
+        #encoder已完成
+        #block已完成
+        self.skrms.Count(X2,X3)
         return X3
 
     def LoadParameters(self):
@@ -54,6 +56,8 @@ class BERTClassifier(tf.keras.Model):
         output1 = self.bert(inputs)
         output2 = self.classifier(output1)
         result = tf.nn.softmax(output2)
+        #self.bert內部已完成
+        self.skrms.Count(output1, output2)
         self.skrms.Count(output2,result)
         return result
 

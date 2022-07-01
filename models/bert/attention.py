@@ -26,7 +26,11 @@ class DotProductAttention(tf.keras.Model):
         keys = tf.transpose(keys,[0,2,1])
         scores = tf.matmul(queries, keys) / math.sqrt(d)
         self.attention_weights = self.masked_softmax((scores,valid_lens))
-        result = tf.matmul(self.dropout(self.attention_weights), values)
+        dropout = self.dropout(self.attention_weights)
+        result = tf.matmul(dropout, values)
+        self.skrms.Count(queries, scores)
+        self.skrms.Count(self.attention_weights, dropout)
+        self.skrms.Count(dropout, result)
         return result
 
     def sequence_mask(self,X, valid_len, value=0):
@@ -47,10 +51,12 @@ class DotProductAttention(tf.keras.Model):
                 valid_lens = tf.reshape(valid_lens,[-1])
             # On the last axis, replace masked elements with a very large negative
             # value, whose exponentiation outputs 0
-            X = self.sequence_mask(tf.reshape(X,[-1, shape[-1]]), valid_lens,
+            output1 = self.sequence_mask(tf.reshape(X,[-1, shape[-1]]), valid_lens,
                                 value=-1e6)
-            X = tf.reshape(X,shape)
-            result = tf.nn.softmax(X, axis=-1)
+            output2 = tf.reshape(output1,shape)
+            result = tf.nn.softmax(output2, axis=-1)
+            self.skrms.Count(X, output1)
+            self.skrms.Count(output1, result)
             return result
 
 
@@ -80,6 +86,7 @@ class MultiHeadAttention(tf.keras.Model):
         output = self.attention((queries, keys, values ,valid_lens))
         output_concat = self.transpose_output((output, self.num_heads))
         result = self.W_o(output_concat)
+        self.skrms.Count(output_concat, result)
         return result
 
     def transpose_qkv(self,inputs):
